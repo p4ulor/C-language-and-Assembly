@@ -1,2 +1,2 @@
 # C language and Assembly
-Problems, quick programs and tutorials
+Problem/exercice solving, quick programs and tutorials
