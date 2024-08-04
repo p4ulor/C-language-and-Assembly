@@ -1,0 +1,8 @@
+a)
+    b -> flag
+    d -> stuff
+    t -> func_aux
+    T -> main
+    U -> printf
+    U -> sum_weight
+    C -> last

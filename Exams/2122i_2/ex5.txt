@@ -1,0 +1,16 @@
+a)
+    f1.c
+
+    D -> a
+    R -> b
+    U -> f
+    T -> main
+
+
+    f2.c
+
+     C -> a
+     D -> p
+     D -> table
+     T -> f
+     U -> printf

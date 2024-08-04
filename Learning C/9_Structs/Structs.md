@@ -1,0 +1,3 @@
+em vez de retornares structs deves retornar sempre ponteiros para as structs, que devem estar alocadas no heap, se uma struct tiver tamanho que chegue e retornares diretamente o objecto na funçao então ya podes estar a encher o stack 
+parametros de funções tmb devem ser ponteiros quando lidas com objectos..
+se passares um objecto completo (struct) nos parametros e mais uma vez o objecto tiver uma dimensão considerável então vais mais uma vez encher o stack

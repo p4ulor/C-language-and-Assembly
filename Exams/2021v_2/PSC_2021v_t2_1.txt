@@ -1,0 +1,324 @@
+1.
+
+    setBits(0b01110, 3, 2, 0b01) = 0b10110.
+
+//Perguntar ao sdor sobre overflow
+void setbits(unsigned *pvalue, int position, int nbits, unsigned new_value)
+{
+	unsigned mask = ~(~0 << nbits) << position;
+
+	*pvalue &= ~mask;
+	*pvalue |= (new_value << position) & mask;
+}
+
+2.
+
+    char *
+    parse_uri(char *uri)
+{
+
+	char *query = strstr(uri, "?") + 1;
+	if (query == NULL)
+	{
+		puts("Invalid URI");
+		return NULL;
+	}
+
+	char *needle = query;
+	while ((needle = strstr(needle, "%20")) != NULL)
+	{
+		memmove(needle + 1, needle + 3, strlen(needle + 3) + 1); //+1 for null terminator
+		*needle = ' ';
+	}
+
+	return query;
+}
+
+3.
+	
+typedef struct buffer { size_t size; char *data; } Buffer;
+
+size_t, 8 bytes
+char*, 8 bytes
+no alignment needed
+
+typedef struct stream { size_t n_buffers; Buffer **buffers; } Stream;
+
+size_t, 8 bytes
+Buffer**, 8 bytes
+
+
+Stream* a = 0x90;
+
+0x90 {0x8, Buffer** buffers = 0x77};
+	
+0x77 { 0x55, 0x50, 0x54 }
+
+Buffer* a = 0x55;
+
+0x55 {size = 0x4, data= 0x44}
+
+0x44 { ['H', 'E', 'L', 'L', 'O'}
+
+# %rdi: Steam* stream, 8 bytes
+# %rsi: size_t offset, 8 bytes
+# %rdx: char* datap, 8 bytes
+readchar:
+	mov $0, %r11 #size_t offset_end = 0
+	
+	mov $0, %r10 #size_t i = 0
+readchar_for:
+	cmp (%rdi), %r10 # i < stream->size 
+	jnb readchar_for_end
+	
+	mov %r11, %r9 # offset_begin = offset_end
+	
+	mov 8(%rdi), %r8 # %r8 = stream->buffers 
+	mov (%r8, %r10, 8), %r8 # %r8 = stream->buffers[i]
+	
+	add (%r8), %r11 # offset_end += stream->buffers[i]->size
+
+	cmp %r11, %rsi
+	jnb readchar_if_end
+
+	sub %r9, %rsi # %rsi = offset - offset_begin
+
+	mov 8(%r8), %r8 # %r8 = &stream->buffers[i]->data
+	movb (%r8, %rsi), %r8b # %r8 = &stream->buffers[i]->data[offset - offset_begin]
+	movb %r8b, (%rdx) # *datap = %r8
+
+	mov $1, %rax
+	ret
+readchar_if_end:
+
+	inc %r10 #++i
+	jmp readchar_for
+readchar_for_end:
+	mov $0, %rax
+readchar_end:
+	ret
+
+4.
+a)
+
+# %rdi: void** vector, 8 bytes
+# %rsi: size_t size, 8 bytes
+# %rdx: void *new, 8 bytes
+# %rcx: int (*compar)(const void*, const void*), 8 bytes
+vector_conditional_insert:
+	push %r15
+	push %r14
+	push %r13
+	push %r12
+
+	mov %rdi, %r15 #%r15 = vector
+	mov %rsi, %r14 #%r14 = size
+	mov %rdx, %r13 #%r13 = new
+	mov %rcx, %r12 #%r12 = compar
+
+	lea (%r15, %r14, 8), %r14 # last = vector + size
+
+	mov %r15, %r11 #%r11, current = vector
+
+vector_conditional_insert_for:
+	cmp %r14, %r11
+	jnb vector_conditional_insert_for_end
+
+	mov (%r11), %rdi
+	mov %r13, %rsi
+	call *%r12
+	cmp $0, %eax
+	je vector_conditional_insert_if_end
+	
+	lea 8(%r11), %rdi
+		
+	mov %r11, %rsi
+
+	mov %r14, %rdx
+	sub %r11, %rdx
+	shl $3, %rdx
+	
+	push %r11
+	call memmove
+	pop %r11
+
+	mov %r13, (%r11)
+	jmp vector_conditional_insert_for_end
+vector_conditional_insert_if_end:
+	lea 8(%r11), %r11
+
+	jmp vector_conditional_insert_for
+vector_conditional_insert_for_end:
+
+	pop %r12
+	pop %r13
+	pop %r14
+	pop %r15
+	ret
+
+
+
+b)
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+void vector_conditional_insert(void **vector, size_t size, void *new,
+			       int (*compar)(const void *, const void *));
+
+int cmp(const char *a, const char *b)
+{
+	if (strcmp(a, b) > 0)
+		return 1;
+
+	return 0;
+}
+
+int main()
+{
+	char *arr[10] = {
+	    "ABC",
+	    "BCD",
+	    "CDE",
+	    "DEF",
+	    "FGX"
+	    };
+
+	char *new = "CDE";
+		
+	vector_conditional_insert(arr, 3, new, cmp);
+}
+
+float i;
+
+5.
+a)
+
+nm f1.o
+
+d data
+T main
+U printf
+U proc
+
+nm f2.o
+
+b Vector
+D data
+T proc
+
+
+
+nm f2.o
+
+D data
+T proc
+b Vector
+
+
+b)
+
+	len = 0x0003
+
+	data[0] = 0x01
+	data[1] = 0x02
+	data[2] = 0x03
+
+	res = 6
+	res + data = 1006 <-- output
+6.
+	C = L*B = S*E*B
+
+	<=> 2^23 = 2^13*2^3*B
+	<=> B = 256
+	<=> B = 2^8
+
+	8 bits de endereçamento
+7.
+
+typedef struct fragment { size_t size; unsigned char *data; } Fragment;
+typedef struct pack_node { struct pack_node *next; Fragment *frag; } PackNode;
+
+typedef struct fragment
+{
+	size_t size;
+	unsigned char *data;
+} Fragment;
+typedef struct pack_node
+{
+	struct pack_node *next;
+	Fragment *frag;
+} PackNode;
+
+PackNode *append(PackNode *packet, const char *data, size_t size)
+{
+	Fragment *fragment = malloc(sizeof(Fragment));
+
+	fragment->size = size;
+	fragment->data = malloc(size);
+	memcpy(fragment->data, data, size);
+
+	PackNode *new_node = malloc(sizeof(PackNode));
+	new_node->next = NULL;
+	new_node->frag = fragment;
+
+	if (packet == NULL)
+		return new_node;
+
+	PackNode *curr = packet;
+	while (curr->next != NULL)
+		curr = curr->next;
+
+	curr->next = new_node;
+
+	return packet;
+}
+
+PackNode *trim_ahead(PackNode *packet, char *buffer, size_t buffer_size, size_t *size)
+{
+	if (packet == NULL)
+		return NULL;
+
+	*size = 0;
+
+	PackNode *new_packet = packet;
+	PackNode *curr = packet;
+
+	while (curr != NULL)
+	{
+		PackNode* next = curr->next;
+
+		Fragment *frag = curr->frag;
+		size_t rem_bytes = buffer_size - *size;
+
+		if (rem_bytes == 0)
+			return packet;
+
+		if (rem_bytes >= frag->size)
+		{
+			new_packet = curr->next;
+			memcpy(buffer + *size, frag->data, frag->size);
+
+			*size += frag->size;
+
+			free(frag->data);
+			free(frag);
+			free(curr);
+		}
+		else
+		{
+			memcpy(buffer + *size, frag->data, rem_bytes);
+			*size += rem_bytes;
+
+			frag->data += rem_bytes;
+
+			return new_packet;
+		}
+
+		curr = next;
+	}
+
+	return new_packet;
+}
+

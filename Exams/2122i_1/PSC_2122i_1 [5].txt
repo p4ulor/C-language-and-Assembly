@@ -1,0 +1,36 @@
+
+			PSC_2122i_1
+
+
+5. [3,0] Considere o conteúdo do ficheiro fonte f1.c e do ficheiro de inclusão f2.h
+, bem como a lista de símbolos do ficheiro objeto f2.o, obtida com a ferramenta nm.
+
+O que gera symbol são as definições inclusive fracas e invocações
+
+a)
+static int flag; -> .bss   b
+Packet *last -> C é fraca   C
+static Packet stuff[] -> .data  d
+func_aux -> .text         t
+prinft -> UNDEFINED       U
+sum_weight -> UNDEFINED   U
+main -> global .text      T
+
+b)
+
+nm a.out
+
+last B -> forte 
+state B -> forte
+flag D -> .data
+flag b -> .bss
+sum_wight T -> global .text
+
+
+c)
+
+Para garantir que as funções têm a definição e assinatura no ponto .h 
+deve ser garantido que está escrito na compilação do ficheiro .c
+
+
+ 

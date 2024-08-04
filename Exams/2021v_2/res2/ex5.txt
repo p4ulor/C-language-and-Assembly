@@ -1,0 +1,13 @@
+a)
+    f1.c
+
+    incr -> T
+    data -> d
+    main -> T
+
+
+    f2.c
+
+    vector -> b
+    data -> D
+    proc -> T

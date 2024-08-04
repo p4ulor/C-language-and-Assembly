@@ -1,0 +1,23 @@
+a)
+
+    f1.txt
+
+    a -> D
+    factors -> D
+    calc -> U
+    main -> T
+    printf -> U
+
+
+    f2.txt
+
+    a -> R
+    f -> D
+    calc -> t
+    t -> T
+
+
+
+b)
+    
+    

@@ -1,0 +1,281 @@
+1.
+
+	# pattern = 0b1100 value = 0b0011
+	int check_for_pattern(int value, int pattern){
+		unsigned value_temp = value;
+		unsigned mask = ~0;
+		unsigned u_pattern = pattern;
+		while(u_pattern)
+			u_pattern;
+			mask >>= 1;
+		}
+
+		u_pattern = pattern;
+		//Removes right zeros
+		while(u_pattern & 0x1 == 0)
+			u_pattern >>= 1;
+		#pattern = 0b11
+		
+		while(u_pattern != 0){
+			if(u_pattern & mask == value)
+				return 1;
+				
+			u_pattern >>= 1;
+		}
+
+		return 0;
+	}
+
+2.
+char * strtrim(char *str, const char *delim){
+	
+
+	char* ptr = str;
+
+	int is_start = 1;
+	
+	char* start_ptr = NULL;
+	char* trimmed_ptr = NULL;
+	
+	while(ptr != NULL){
+		int is_delim = 0;
+		for(char* delim_ptr=delim; delim != '\0'; delim++){
+			if(*ptr == *delim){
+				is_delim = 1;	
+				break;
+			}
+		}
+
+		if(is_start && !is_delim){
+			start_ptr = ptr;
+
+			ptr = ptr + strlen(ptr) - 1;
+			is_start = 0;
+			continue;
+		}
+
+		if(!is_start && !is_delim){
+			size_t trimmed_len = ptr-start_ptr + 1;
+			trimmed_ptr = malloc(trimmed_len);
+			memcpy(trimmed_ptr, start_ptr, trimmed_len+1);
+			trimmed_ptr[trimmed_len] = '\0';
+			
+			break;
+		}
+		
+		if(is_start)
+			ptr++;
+		else
+			ptr--;
+	}
+
+	return trimmed_ptr;
+}
+
+3.
+
+typedef struct item {
+	int key; // 4 bytes 
+	char label[16]; //16 bytes
+ } Item;
+
+typedef struct item_coll { 
+	size_t length; // 8 bytes
+	 Item *items[]; // 8 bytes
+} ItemColl;
+
+ItemColl *ic = 0x00;
+
+0x00: {length=0x2 (8B), items=0x10(8B)}
+
+0x10: [0x20(8B), 0x21, 0x22]
+
+0x20: {key=0x2(4B), label=['Y','E','E','T']}
+
+# %rdi: ItemColl *ic, 8 bytes
+# %esi: int key, 4 bytes
+find_first:
+	mov $0, %r11 # %r11 = i
+
+find_first_for:
+	mov (%rdi), %rdx
+	cmp %rdx, %r11
+	jnl find_first_for_end
+
+find_first_if:
+	mov 8(%rdi), %rdx # %rdx = ic->items
+	mov (%rdx, %r11, 8), %rdx #%rdx = ic->items[i]
+	movl (%rdx), %ecx
+	cmp %esi, %ecx
+	jne find_first_if_end
+	
+	lea 8(%rdx), %rax
+	ret
+find_first_if_end:
+	inc %r11
+	jmp find_first_for
+find_first_end:
+	mov $0, %rax
+	ret
+
+4.
+
+
+# %rdi: void* array, 8 bytes
+# %rsi: size_t size, 8 bytes
+# %rdx: size_t elem_size, 8 bytes
+# %rcx: void(*do_it)(void *, void *), 8 bytes
+# %r8: void* context, 8 bytes
+for_each:
+	push %r15
+	push %r14
+	push %r13
+	push %r12
+	push %rbx
+	push %rbp
+
+	mov %rdi, %r15
+	mov %rsi, %r14
+	mov %rdx, %r13
+	mov %rcx, %r12
+	mov %r8, %rbx 
+
+	mov $0, %rbp #i = 0
+
+for_each_for:
+	cmp %r14, %rbp
+	jnb for_each_for_end
+
+	mov %r13, %rax
+	mul %rbp
+
+	lea (%r15, %rax), %rdi
+
+	mov %rbx, %rsi
+
+	call *%r12
+
+	inc %rbp
+	jmp for_each_for
+
+for_each_for_end:
+	ret
+
+b)
+
+struct word {
+	int counter,
+  	char *word 
+}
+
+struct words{
+	struct word* words;
+	size_t length;
+}
+
+void countWords(void* word, void* ctx){
+	struct words* counters =(struct words*) ctx;
+	char* word =(char*) word;
+	
+	for(int i = 0; i < ctx->length; i++){
+		if(strcmp(counters->words[i], word) == 0)
+			counters->words[i].length++;
+	}
+}
+
+int main(){
+	struct word counters_arr[] = {
+		{0, "HELLO"},
+		{0, "YEET"}
+	}
+
+	struct words counters = {counters_arr, 2}
+
+	char* words[] = {
+		"HELLO",
+		"HELLO",
+		"YEET"
+	}
+
+	for_each(words, 3, sizeof(char*),countWords, &counters)
+	
+}
+
+5.
+
+nm f1.c
+
+C a
+b b
+U c
+U y
+U d
+
+T x
+T main
+
+nm f2.c
+
+D a
+D b
+D d
+C c
+
+U x
+
+T y
+
+
+b)
+
+Não dá erro de linking porque o linker procura uma definição forte para a declaração, sem interessar a sua secção (neste caso .data).
+Caso não encontra-se uma definição forte iria procurar definições fracas e iria escolher uma ao acaso.
+
+
+6.
+
+	C = L * B = S*E*B
+
+	C = 256 * 8 * 64 = 131072 bytes
+	
+7.
+
+typedef struct data { int key; size_t length; uint32_t data[]; } Data;
+typedef struct data_node { struct data_node *next; Data *data; } NodeData;
+
+NodeData *array_to_list_by_key(Data *data[], size_t length, int key){
+	NodeData* new_list = NULL;
+	NodeData* prev = NULL;
+
+	for(int i = 0; i < length;i++){
+		Data* data = data[i];
+
+		NodeData* new_node = malloc(sizeof(NodeData));
+		new_node->next = NULL;
+		new_node->data = malloc(sizeof(Data) + data->length);
+		memcpy(new_node->data, data->data, data->length);
+		
+		if(new_list = NULL)
+			new_list = new_node;
+
+		if(prev != NULL)
+			prev->next = new_node;
+
+		prev = new_node;
+	}
+
+	return new_list;
+}
+
+void free_data_list(NodeData *data_list){
+	NodeData* curr = data_list;
+	while(curr != null){
+		NodeData* next = curr->next;
+		free(curr->data);
+		free(curr);
+		
+		curr = next;
+	}
+
+	return curr;
+}

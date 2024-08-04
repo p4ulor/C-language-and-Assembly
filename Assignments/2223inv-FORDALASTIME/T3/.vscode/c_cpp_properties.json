@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:\\ProgramsSalad\\msys2\\mingw64\\include",
+                "C:/ProgramsSalad/msys2/mingw64/include",
+                "C:\\ProgramsSalad\\msys2\\mingw64\\include\\**",
+                "C:/ProgramsSalad/msys2/mingw64/include/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "compilerPath": "C:\\ProgramsSalad\\msys2\\mingw64\\bin\\gcc.exe",
+            "cStandard": "gnu17",
+            "cppStandard": "gnu++14",
+            "intelliSenseMode": "windows-gcc-x64",
+            "forcedInclude": [
+                "C:\\ProgramsSalad\\msys2\\mingw64\\include\\jansson.h",
+                "C:/ProgramsSalad/msys2/mingw64/include/jansson.h"
+            ]
+        }
+    ],
+    "version": 4
+}

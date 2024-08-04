@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "jansson.h": "c",
+        "curl.h": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c",
+        "typeinfo": "c",
+        "ratio": "c",
+        "sstream": "c"
+    }
+}

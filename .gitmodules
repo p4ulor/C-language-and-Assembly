@@ -1,0 +1,6 @@
+[submodule "Assignments/2122v/T3/--force"]
+	path = Assignments/2122v/T3/--force
+	url = https://github.com/Programer-Gang/PSC_TP3
+[submodule "PSC_TP3"]
+	path = Assignments/2122v/T3/PSC_TP3
+	url = https://github.com/Programer-Gang/PSC_TP3

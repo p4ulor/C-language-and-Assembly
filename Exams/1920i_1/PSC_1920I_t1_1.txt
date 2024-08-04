@@ -1,0 +1,285 @@
+1.
+
+
+a:	0x03 <- endereço mais pequeno
+	0x00
+	0x00
+	0x00 <- endereço mais alto
+
+
+b:	0x02
+	0x00
+
+
+c:	'1' 
+	'.'
+	'1'
+
+d:	0x0a <- x
+	0x00
+	0x00
+	0x00
+	0x00 <- align 4 bytes
+	0x00
+	0x00
+	0x00
+	0x00 <- y
+	0x00
+	0x00
+	0x00
+	0x00
+	0x00
+	0x00
+	0x00
+
+e:	0x20 <- z, w
+	0x00
+	0x00
+	0x00
+	0x00
+	0x00
+	0x00
+
+2.
+	void strndelc(char * str, size_t n, char c){
+
+		char* ocur = strchr(str, c);
+
+		size_t i = 0;
+		while(i < n && ocur != NULL){
+			memmove(ocur, ocur+1, strlen(ocur)); //strlen(ocur) inclui o . para contar como o \0			
+
+			ocur = strchr(str, c);
+			i++;
+		}
+	}
+
+3.
+
+Appointments** calendar = 0x55;
+
+0x55 : {[0x77,0x87, 0x97](n*8 bytes)}
+
+0x97 : {length=0x4 (8 bytes), events = 0x107}
+
+0x107 : [ { [description=0x117, schedule=0x117] } (16 bytes), {...}, {...}]
+
+0x117: ['H', 'E', 'L', 'L','O']
+
+# %rdi: Appointments** calendar, 8 bytes
+# %rsi: int day, 4 bytes
+get_last_event:
+	mov (%rdi, %rsi, 8), %rdi #%rdi = calendar[day] = 0x97
+
+	cmp $0, %rdi
+	je get_last_event_end
+	
+	mov (%rdi), %rsi;
+	dec %rsi #%rsi = last_index = calendar[day]->length - 1
+
+	mov 8(%rdi), %rdi # %rdi = calendar[day]->events = 0x107
+	shl $2, %rsi
+ 
+	mov (%rdi, %rsi, 8), %rax # %rax = calendar[day]->events[last_index].description
+	ret
+get_last_event_end:
+	mov $0, %rax
+	ret
+
+4.
+
+void ** ptrs = 0x77
+
+0x77 : [0x54 (void*), 0x64]
+
+
+# %rdi: void* objs, 8 bytes
+# %rsi: size_t n, 8 bytes
+# %rdx: size_t dim, 8 bytes
+# %rcx: void ** ptrs, 8 bytes
+# %r8: void* ctx, 8 bytes
+# %r9: int (*eval)(void *ptr, void *ctx), 8 bytes 
+filter_objs:
+	push %r15
+	push %r14
+	push %r13
+	push %r12
+
+	mov %rdi, %r15 # %r15 = objs
+	mov %rsi, %r14 # %r14 = n
+	mov %rdx, %r13 # %r13 = dim
+	mov %rcx, %r12 # %r12 = ptrs;
+
+	mov $0, %r11 # %r11 = i
+
+filter_objs_for:
+	cmp $0, %r14
+	je filter_objs_for_end
+
+	mov %r15, %rdi
+	mov %r8, %rsi
+	
+	push %r11
+	push %r9
+	push %r8
+	
+	call *%r9
+	
+	pop %r8
+	pop %r9
+	pop %r11
+
+	cmp $0, %rax
+	je filter_objs_if_end
+
+	mov %r15, (%r12, %r11, 8)
+	inc %r11
+
+filter_objs_if_end:
+	lea (%r15, %r13), %r15
+	
+	dec %r14
+	jmp filter_objs_for
+filter_objs_for_end:	
+
+	pop %r12
+	pop %r13
+	pop %r14
+	pop %r15
+
+	mov %r11, %rax
+	ret
+
+
+b)
+
+struct person{
+	char* firstName;
+	char* lastName;
+	int age;
+	int height;
+}
+
+int evalMultiple(void* ptr, void* ctx){
+	if(ptr->age >= *ctx)
+		return 1;
+	
+	return 0;
+}
+
+int main(){
+
+
+	struct person array[] = {
+		{"André", "Páscoa", 20,171},
+		{"André", "Jesus", 19, 178},
+		{"Nyckollas", "Brandão", 19, 171}
+	};
+
+	struct Person* filtered_array[3];
+
+	int minAge = 20;
+	filter_objs(array, 3, 24, &minAge, olderThan);
+}
+
+5.
+a)
+
+nm f1.c
+
+U inc_counter
+D counter
+T main
+U printf
+
+nm f2.c
+
+U counter
+R d
+D f
+b c
+b s
+T inc_counter
+
+b)
+
+Undefined behaviour
+
+Output: counter = 3000
+
+c)
+
+O linker procura uma só definição forte para o extern char counter, 
+neste caso encontrou a definição forte char counter[] = "2000".
+Caso não haja definação forte então procura as definições fracas (um ex: char counter[];)
+e escolhe uma aleatória.
+
+
+6.
+
+	C = L * B = = S * E *B
+
+	Sistema A
+	A->E = 4
+	A->B = 32
+
+	Sistema B
+
+	B->E = 2
+	B->B = 16
+	
+
+	A->S * A->E * A->B = B->S * B->E * B->B
+	<=> A->S * 4*32 = B->S *2*16
+	<=> A->S * 2^2 = B->S 
+	
+
+
+7.
+
+typedef struct data_node{
+	struct data_node *next;
+	size_t length;
+	void* data;
+} DataNode;
+
+
+DataNode* list_copy(DataNode* list){
+	DataNode* new_list = NULL;
+
+	DataNode* new_curr = NULL;
+	DataNode* curr = list;
+
+	while(curr != NULL){
+		DataNode* new_node= malloc(sizeof(DataNode));
+		new_list->next = NULL;
+		new_list->length = curr->length;
+		new_list->data = malloc(curr->length);
+		memcpy(new_list->data, curr->data, curr->length);
+
+		if(new_list == NULL)
+			new_list = new_curr;
+
+		if(new_curr != NULL)
+			new_curr->next = new_node;
+
+		new_curr = new_node;
+		curr = curr->next;
+	}
+
+	return new_list;
+}
+
+void list_destroy(DataNode* list){
+	
+	DataNode* curr = list;
+
+	while(curr != NULL){
+		DataNode* next = curr->next;
+
+		free(curr->data);
+		free(curr);
+
+		curr = next;
+	}
+}

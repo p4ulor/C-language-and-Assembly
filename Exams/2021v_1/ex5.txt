@@ -1,0 +1,23 @@
+a.
+f1.c
+a C
+b b
+x T
+d U
+c U
+main T
+y U
+
+
+f2.c
+a D
+b D
+d D
+c C
+y T
+x U
+
+
+b. 
+O linkagem nao dá erro porque nao tem informação de tipo 
+O nome é igual o symbol é o mesmo, mas nao tem imformação de tipo

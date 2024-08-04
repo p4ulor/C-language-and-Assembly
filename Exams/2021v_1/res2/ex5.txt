@@ -1,0 +1,24 @@
+a)
+    f1.c
+
+    a -> C global
+    b -> b local
+    c -> U global
+    y -> U global 
+    d -> U global
+    x -> T global  
+    main -> T global
+
+
+    f2.c
+
+    a -> D global
+    b -> D global
+    d -> D global
+    c -> C global
+    x -> U global
+    y -> T global
+
+
+b)
+    nao da erro em compilaçao porque o d do f1.c é undifiend e no f2.c em forte.

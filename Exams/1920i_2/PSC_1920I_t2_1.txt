@@ -1,0 +1,108 @@
+1.
+
+	0b1011 0b0111
+
+	0b1011 0b0101 n=5
+
+void ror128(unsigned long *phi, unsigned long *plo, size_t n)
+{
+	unsigned long hi = *phi;
+	unsigned long lo = *plo;
+
+	if (n <= 64)
+	{
+		*phi = hi >> n | lo << (64 - n);
+		*plo = lo >> n | hi << (64 - n);
+		return;
+	}
+
+	*phi = lo >> (128 - n) | hi << (n - 64);
+	*plo = hi >> (128 - n) | lo << (n - 64);
+}
+
+2.
+	void reverse(char* str, int left, int right){
+		size_t len = strlen(str);
+		if(left >= len)
+			left = len - 1;
+		if(right >= len)
+			right = len - 1;
+
+		if(left == right)
+			return;
+		
+		for(; left < right; left++, right--){
+			char temp = str[left];
+			str[left] = str[right];
+			str[right] = temp;
+		}
+	}
+
+4.
+# %rdi: const void* key, 8 bytes
+# %rsi: const void* base, 8 bytes
+# %rdx: size_t nelem, 8 bytes
+# %rcx: size_t size, 8 bytes
+# %r8: int (*fcmp)(const void *, const void *), 8 bytes
+bsearch:
+	push %r15
+	push %r14
+	push %r13
+	push %r12
+	push %rbx
+	push %rbp
+
+	mov %rdi, %r15
+	mov %rsi, %r14
+	mov %rdx, %r13
+	mov %rcx, %r12
+	mov %r8, %rbx
+
+bsearch_while:
+	cmp $0, %r13
+	jna bsearch_while_end
+
+	mov %r13, %rbp
+	shr $1, %rbp # %rbp = pivot
+
+	mov %r12, %rax
+	mul %rbp
+
+	lea (%r14, %rax), %r11 # %r11 = q
+
+	mov %r15, %rdi
+	mov %r11, %rsi
+	
+	push %r11
+	call *%rbx
+	pop %r11
+
+	# %rax = val
+	cmp $0, %rax
+	jne bsearch_if_else_if1
+
+	mov %r11, %rax
+	jmp bsearch_ret
+bsearch_if_else_if1:
+	jnl bsearch_if_else
+
+	mov %rbp, %r13	
+	jmp bsearch_if_end
+bsearch_if_else:
+	lea (%r11, %r12), %r14 # base=q+size
+	
+	inc %rbp
+	sub %rbp, %r13
+bsearch_if_end:
+	jmp bsearch_while
+bsearch_while_end:
+	mov $0, %rax
+bsearch_ret:
+	pop %rbp
+	pop %rbx
+	pop %r12
+	pop %r13
+	pop %r14
+	pop %r15
+
+	ret

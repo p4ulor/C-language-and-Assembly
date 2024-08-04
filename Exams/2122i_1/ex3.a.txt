@@ -1,0 +1,17 @@
+    .equ     PINMUX, 0
+    .equ     PINGCFG, 4
+    .equ     PINCTRL_PIN, 0
+    .equ     PIN_CNT, 8
+    .equ     STATE_CNT, 0
+    .equ     PINCTRL_STATE, 1
+
+    .text
+    .global get_pincgf
+    
+get_pincfg:
+    mov     PINCTRL_STATE(%rdi), %r10    # config->states
+    mov     $9, %rax
+    mul     %rsi
+    mov     (%r10, %rax), %r10            # config->states[state]->pins
+    mov     PINGCFG(%r10, %rdx, 8), %rax    # config->states[state]->pins[pin].config
+    ret
