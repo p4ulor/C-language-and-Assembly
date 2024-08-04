@@ -3,7 +3,7 @@
 2. Some explanations of some topics, since most stuff is already out there on the internet. I will also not explain or go too much into detail on little concepts that are pretty uniform between languages, like if's else's, order or priority of math operations, incrementations, decrementations, etc
 3. This repo still has a lot tasks to complete (but I will very likely leave it as it is)
 
-Don't take my statements for granted. I might be wrong, if so, please correct me. I had a hard time learning this curricular subject in college. I understand it's importance, but currently I prefer to learn other things
+**Don't take my statements for granted. I might be wrong, if so, please correct me. I had a hard time learning this curricular subject in college. I understand it's importance, but currently I prefer to learn other things**
 
 ## About the C language
 - Middle-High level language. Since you have more control over memory allocation and you can join high-level code with low-level code to compile
@@ -36,6 +36,9 @@ Don't take my statements for granted. I might be wrong, if so, please correct me
 - [Wikipedia for Assembly](https://en.wikipedia.org/wiki/Assembly_language)
 - [Wikipedia for Unix](https://en.wikipedia.org/wiki/Unix)
 - [Compiler Explorer](https://godbolt.org/)
+
+## Gravações aulas com prof Ezequiel 
+- https://educast.fccn.pt/results?channel=z806w1vcf
 
 ## Books
 - The C Programming Language, 2nd Edition by Brian W Kernighan and Dennis Ritchie
